@@ -1,34 +1,0 @@
-10
-
-dir
-21
-https://l3-06/svn/frt_project/WebRoot/login
-https://l3-06/svn/frt_project
-
-
-
-2016-11-07T08:22:05.330899Z
-20
-frt
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-41bc191b-f563-fd44-92a2-53ffd3934ff6
-
-lib
-dir
-
-static
-dir
-

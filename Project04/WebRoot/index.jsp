@@ -156,6 +156,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <div>
     	<br>
     	<input type="text" id="inputVal" name ="inputVal" >
+		<br>
     	<input type="button" id="subBtn" value="search" onclick="clickBtn()">
     	<div id="showWin3">
     	
