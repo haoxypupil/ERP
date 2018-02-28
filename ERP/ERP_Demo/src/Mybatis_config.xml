@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<mappers>
+		<mapper resource="com/zb/mapper/UserMapper.xml"/>
+		<mapper resource="com/zb/mapper/RoleMapper.xml"/>
+		<mapper resource="com/zb/mapper/RoleRightsMapper.xml"/>
+		<mapper resource="com/zb/mapper/LocaleBasicInfoMapper.xml"/>
+		<mapper resource="com/zb/mapper/MaintenanceMapper.xml"/>
+		<mapper resource="com/zb/mapper/Equ_localeMapper.xml"/>
+		<mapper resource="com/zb/mapper/EquipmentMapper.xml"/>
+		<mapper resource="com/zb/mapper/ContractMapper.xml"/>
+		<mapper resource="com/zb/mapper/InvoiceMapper.xml"/>
+
+	</mappers>
+</configuration>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zb.mapper.LocaleOperatorMapper">
+		<resultMap type="com.zb.entity.LocaleOperator" id="localeOperatorResult">
+				<id property="operatorId" column="operator_id"/>
+				<result property="operatorCode" column="operator_code"/>
+				<result property="operatorName" column="operator_name"/>
+		</resultMap>
+		
+		
+		<select id="findLocaleOperator" resultMap="localeOperatorResult">
+				select * from  locale_operator
+		</select>
+</mapper>

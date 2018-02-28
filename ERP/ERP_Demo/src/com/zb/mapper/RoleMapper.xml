@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zb.mapper.RoleMapper">
+		<resultMap type="com.zb.entity.Role" id="roleResultMap">
+				<id property="rid" column="r_id"/>
+				<result property="rolename" column="rolename"/>
+				<collection property="rights" javaType="com.zb.entity.Rights">
+					<result property="id" column="rg_id"/>
+					<result property="rightsname" column="rightsname"/>
+					<result property="parentid" column="parentid"/>
+					<result property="url" column="url"/>
+				</collection>
+		</resultMap>
+		
+		
+		<!-- 登录 -->
+		<select id="getRoleInfo" parameterType="int" resultMap="roleResultMap">
+		<![CDATA[
+						 select r.r_id, 
+						 			rr.roleid,
+							        rr.rightsid,
+							        r.rolename,
+							        rg.rg_id,
+							        rg.rightsname,
+							        rg.parentid,
+							        rg.url
+						  from role r, role_rights rr, rights rg
+									 where r.r_id = #{value}
+									 and r.r_id = rr.roleid
+									 and rr.rightsid = rg.rg_id
+				 ]]>
+		</select>
+		
+		<!-- 权限管理 查询所有角色 -->
+  			<sql id="where_sql">
+  					<if test="rolename !=null">
+  							and rolename like '%'||#{rolename}||'%'
+  					</if>
+  			</sql>
+  			
+  			<!-- 权限管理： 查出全部角色并分页展示  -->
+  			<select id="findRolelist" parameterType="map" resultMap="roleResultMap">
+  				select * from (
+  							select r.*, rownum as r from role r where 1=1
+  							<include refid="where_sql"/>
+  								) 
+  				<![CDATA[
+  							where r>=1 and r<=10
+  				]]>	
+  				
+  				<!-- 权限管理 ： 算出总记录数 -->			
+  			</select>
+  			<select id="findRoleCount" parameterType="map" resultType="int">
+  				select count(*) from role where 1=1 
+  				<include refid="where_sql"/>
+  			</select>
+  			
+  			  <!-- 按名字查id -->
+			 <select id="findRoleByRoleName" parameterType="string" resultType="int">
+			  		select r_id from role where rolename=#{rolename}
+			 </select>
+  
+  			<!-- 权限管理： 新增角色的方法 -->
+  			<insert id="addRole" parameterType="com.zb.entity.Role">
+  					insert into role values(seq_role.nextval,#{rolename}) 
+  			</insert>
+  			
+  			<!-- 权限管理： 更新角色 -->
+  			<update id="updateRole" parameterType="com.zb.entity.Role">
+  				update role set rolename=#{rolename} where r_id=#{rid}
+  			</update>
+  			
+  			<!-- 权限管理 ： 删除角色 -->
+  			<delete id="delRole" parameterType="int">
+  				delete from role where r_id=#{value}
+  			</delete>
+  			
+  			<!-- 按照id查询role对应rights -->
+  			<select id="findRoleById" parameterType="int" resultMap="roleResultMap">
+  					select ro.*,rg.rg_id,rg.rightsname,rg.parentid,rg.url 
+        						 from role_rights rr,role ro,rights rg 
+             							 where rr.roleid=ro.r_id 
+								             and rr.rightsid=rg.rg_id  
+								             and ro.r_id=#{value}
+  			</select>
+  			<!-- 验证用户名是否存在 -->
+  			<select id="nameCheck" parameterType="string" resultType="int">
+  				select count(*) from role where rolename=#{value}
+  			</select>
+  			
+  			
+</mapper>

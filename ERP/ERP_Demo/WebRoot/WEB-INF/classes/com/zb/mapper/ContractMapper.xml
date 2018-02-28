@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zb.mapper.ContractMapper">
+	<resultMap type="com.zb.entity.Contract" id="resultContractMap">
+		<id property="conId" column="con_id"/>
+		<result property="conCode" column="con_code"/>
+		<result property="conName" column="con_name"/>
+		<result property="conLinkman" column="con_linkman"/>
+		<result property="conAmount" column="con_amount"/>
+		<result property="conTerm" column="con_term"/>
+		<result property="conCycle" column="con_cycle"/>
+		<result property="conPaymethod" column="con_paymethod"/>
+		<result property="conLocalecode" column="con_locale_code"/>
+		<result property="conTime" column="con_time"/>
+		<result property="conUnit" column="con_unit"/>
+		<result property="conInvoice" column="con_invoice"/>
+		<result property="conPayunit" column="con_payunit"/>
+		<result property="conPaymoney" column="con_paymoney"/>
+		<result property="conInvoicetype" column="con_invoicetype"/>
+		<result property="conInvoicestatus" column="con_invoicestatus"/>
+		<result property="conCollection" column="con_collection"/>
+		<result property="conPaytime1" column="con_paytime1"/>
+		<result property="conPaytime2" column="con_paytime2"/>
+		<result property="conPaytime3" column="con_paytime3"/>
+		<result property="conPaytime4" column="con_paytime4"/>
+		<result property="conActivetime" column="con_activetime"/>
+		<result property="conLocalestatus" column="con_localestatus"/>
+	</resultMap>
+		
+		<sql id="where_sql">
+			<!-- 1合同编号不为空 -->
+			<if test="conCode !=null">
+				and con_code = #{conCode}
+			</if>
+			<!-- 2合同名称不为空 -->
+			<if test="conName !=null">
+				and con_name like '%'||#{conName}||'%'
+			</if>
+			<!-- 3开始时间不为空 -->
+			<if test="conTimefrom !=null">
+				and con_time <![CDATA[ >= ]]>to_date(#{conTimefrom},'yyyy-MM-dd')
+			</if>
+			<!-- 4结束时间不为空 -->
+			<if test="conTimeto !=null">
+				and con_time <![CDATA[ <= ]]>to_date(#{conTimeto},'yyyy-MM-dd')
+			</if>
+			<!-- 5项目联系人不为空 -->
+			<if test="conLinkman !=null">
+				and con_linkman like '%'||#{conLinkman}||'%'
+			</if>
+			<!-- 6支付周期不为空 -->
+			<if test="conCycle !=null">
+				and con_cycle = #{conCycle}
+			</if>
+			<!-- 7签约单位不为空 -->
+			<if test="conUnit !=null">
+				and con_unit like '%'||#{conUnit}||'%'
+			</if>
+			<!-- 8开票单位不为空 -->
+			<if test="conInvoice !=null">
+				and con_invoice like '%'||#{conInvoice}||'%'
+			</if>
+			<!-- 9付款单位不为空 -->
+			<if test="conPayunit !=null">
+				and con_payunit like '%'||#{conPayunit}||'%'
+			</if>
+			 <!-- 10开票状态不为空 -->
+			<if test="conInvoicestatus !=null">
+				and con_invoicestatus = #{conInvoicestatus}
+			</if>
+			<!-- 11收款状态不为空 -->
+			<if test="conCollection !=null">
+				and con_collection = #{conCollection}
+			</if>
+		</sql>
+		
+		<!-- 组合查询加分页展示 -->
+		<select id="findContractList"  parameterType="map"  resultMap="resultContractMap">
+					select * from (
+       							select c.*,rownum as r from (
+       										select * from contract  where 1=1
+       										<include refid="where_sql"/>
+       										 ) c) 
+       							<![CDATA[
+       									where r>=#{start} and r<=#{end}
+       							]]>            					
+		</select>
+	
+	<select id="findContractCount"  parameterType="map"  resultType="int">
+						select count(*) from (select * from contract  where 1=1 <include refid="where_sql"/>)
+						
+	</select>
+	
+	<insert id="addContract" parameterType="com.zb.entity.Contract">
+					 insert into contract values (seq_con.nextval,
+						 											  #{conCode},
+						 											  #{conName},
+						 											  #{conLinkman},
+										                              #{conAmount},
+										                              #{conTerm},
+										                              #{conCycle},
+										                              #{conPaymethod},
+										                              #{conLocalecode},
+										                              to_date(#{conTime},'yyyy-MM-dd'),   
+										                              #{conUnit},
+										                              #{conInvoice},
+										                              #{conPayunit},
+										                              #{conPaymoney},
+										                              #{conInvoicetype},
+										                              '0',						<!-- 新签合同无发票信息 -->
+										                              '0',					    <!-- 新签合同无收款信息 -->
+										                              to_date(#{conPaytime1},'yyyy-MM-dd'),
+										                              to_date(#{conPaytime2},'yyyy-MM-dd'),
+										                              to_date(#{conPaytime3},'yyyy-MM-dd'),
+										                              to_date(#{conPaytime4},'yyyy-MM-dd'),
+										                              to_date(#{conActivetime},'yyyy-MM-dd'),
+										                              '1')
+	</insert>
+	
+	<!-- 修改开票和付款单位 -->
+	<update id="updateUnit" parameterType="com.zb.entity.Contract">
+				update contract set 
+													
+													con_name = #{conName},
+													con_linkman = #{conLinkman},
+													con_amount = #{conAmount},
+													con_term =  #{conTerm},
+													con_cycle = #{conCycle},
+													con_paymethod = #{conPaymethod},
+													con_locale_code = #{conLocalecode},
+													con_time = to_date(substr(#{conTime},1,10),'yyyy-MM-dd'),
+													con_unit = #{conUnit},
+													 
+													con_invoice = #{conInvoice},
+												    con_payunit =#{conPayunit},
+												    con_localestatus = #{conLocalestatus},
+												
+												    con_paymoney = #{conPaymoney},
+												    con_invoicetype = #{conInvoicetype},
+												    con_paytime1 = to_date(substr(#{conPaytime1},1,10),'yyyy-MM-dd'),
+												    con_paytime2 = to_date(substr(#{conPaytime2},1,10),'yyyy-MM-dd'),
+												    con_paytime3 = to_date(substr(#{conPaytime3},1,10),'yyyy-MM-dd'),
+												    con_paytime4 = to_date(substr(#{conPaytime4},1,10),'yyyy-MM-dd'),
+												    con_activetime = to_date(substr(#{conActivetime},1,10),'yyyy-MM-dd')
+											
+									                where con_code=#{conCode}
+	</update>
+	
+	<select id="findInvoidceList"  resultMap="resultContractMap">
+				select * from (
+       				select c.*,rownum as r from (
+						select * from contract where (to_char(con_paytime1,'MM')= #{Month} 
+                          or to_char(con_paytime2,'MM')= #{Month} 
+                          or to_char(con_paytime3,'MM')= #{Month}
+                          or to_char(con_paytime4,'MM')= #{Month}
+                          or to_char(con_activetime,'MM')= #{Month}) 
+                          and con_invoicestatus = '0' 
+                          and con_collection='0'
+                          and con_localestatus='1'
+                          <include refid="where_sql"/>
+                          ) c)
+                         <![CDATA[
+       									where r>=#{start} and r<=#{end}
+       							]]>      
+	</select>
+	<select id="findInvoiceCount" parameterType="map"  resultType="int">
+			select  count(*)	from (select  *  from contract where (to_char(con_paytime1,'MM')= #{Month} 
+                          or to_char(con_paytime2,'MM')= #{Month} 
+                          or to_char(con_paytime3,'MM')= #{Month}
+                          or to_char(con_paytime4,'MM')= #{Month}
+                           or to_char(con_activetime,'MM')= #{Month}) 
+                          and con_invoicestatus = '0' 
+                          and con_collection='0'
+                          and con_localestatus='1'
+                          <include refid="where_sql"/>
+                          )
+	</select>
+	
+	<!-- 开票操作，修改发票状态 -->
+	<update id="updateInvoiceStatus" parameterType="com.zb.entity.Contract">
+		 update contract set con_invoicestatus = '1' where con_code =#{conCode}
+	</update>
+	
+	<!-- 退票操作，修改发票状态为0  -->
+	<update id="updateInvoiceStatusTo0" parameterType="com.zb.entity.Contract">
+		 update contract set con_invoicestatus = '0' where con_code =#{conCode}
+	</update>
+	
+		
+		<!-- 查出开票状态为1，付款状态为0的合同信息 -->
+		<select id="findCollectionList" resultMap="resultContractMap">
+				 select * from (
+			 				select c.*,rownum as r from (
+			 							select * from contract 
+			 								where con_invoicestatus = '1' 
+			 								and con_collection = '0'
+			 							 <include refid="where_sql"/>
+			 							) c) 
+			 								
+		                         <![CDATA[
+		       									where r>=#{start} and r<=#{end}
+		       							]]>    			 
+		</select>
+		
+		<!-- 查出开票状态为1，付款状态为0的合同信息 -->
+		
+		<select id="findCollectionCount" parameterType="map" resultType="int">
+				select count(*) from (
+								select * from contract 
+									where con_invoicestatus ='1' 
+									and con_collection = '0'
+								 <include refid="where_sql"/>
+								)
+		</select>
+		<!-- 收款操作，修改合同表的收款状态，同步，修改发票表的收款状态 -->
+	  <update  id="updateCollectionStatus" parameterType="com.zb.entity.Contract">
+	  				update contract set con_collection = '1' 
+	  									   where con_code =#{conCode}
+	  </update>
+	  
+	  
+	  <select id="findStatusInfoList"  parameterType="int" resultMap="resultContractMap">
+	  					select * from contract where con_invoicestatus = '0' and con_collection = '0' 
+										                       and (to_char(con_paytime1,'MM')= #{Month} 
+										                         or to_char(con_paytime2,'MM')= #{Month}
+										                         or to_char(con_paytime3,'MM')=#{Month}
+										                         or to_char(con_paytime4,'MM')= #{Month}
+										                         or to_char(con_activetime,'MM')= #{Month})
+										                         
+	  </select>
+	  <!-- 更新上个月的开票以及付款状态为1的数据为0，为0的不做更新 -->
+	  <update id="updateJob" parameterType="int">
+	  				update contract set con_invoicestatus = '0',
+	  												   con_collection = '0' 
+	  												   where (to_char(con_paytime1,'MM')= #{Month}
+                                                               or to_char(con_paytime2,'MM')= #{Month}
+                                                               or to_char(con_paytime3,'MM')=#{Month}
+                                                               or to_char(con_paytime4,'MM')= #{Month}
+                                                               or to_char(con_activetime,'MM')= #{Month}) 
+                                                               and con_invoicestatus = '1'
+                                                               and con_collection = '1'
+	  </update>
+</mapper>

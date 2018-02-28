@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zb.mapper.RoleRightsMapper">
+  <resultMap type="com.zb.entity.RoleRights" id="roleRightsResult">
+  	<result property="roleid" column="roleid"/>
+  	<result property="rightsid" column="rightsid"/>
+  </resultMap>
+  
+  <!-- 新增角色及对应权利 -->
+  <insert id="saveRoleRights" parameterType="com.zb.entity.RoleRights">
+  			insert into role_rights values(#{roleid},#{rightsid})
+  </insert>
+  
+  <!-- 删除角色及对应权利 -->
+  <delete id="deleteRoleRights" parameterType="int">
+  			delete from role_rights where roleid=#{value}
+  </delete>
+</mapper>

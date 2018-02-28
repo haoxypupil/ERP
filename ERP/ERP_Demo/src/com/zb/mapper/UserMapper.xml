@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zb.mapper.UserMapper">
+		<resultMap type="com.zb.entity.Users" id="userResultMap">
+				<id property="uid" column="u_id"/>
+				<result property="uname" column="uname"/>
+				<result property="upwd" column="upwd"/>
+				<result property="username" column="username"/>
+				<association property="role" javaType="com.zb.entity.Role">
+					<result property="rid" column="r_id"/>
+					<result property="rolename" column="rolename"/>
+				</association>
+		</resultMap>
+		
+		<!-- 登录 -->
+		<select id="findUserLogin" resultMap="userResultMap" parameterType="map">
+				select * from users where uname = #{uname} and upwd = #{upwd}
+		</select>
+		
+		<!-- 权限管理 查询所有用户 -->
+  			<sql id="where_sql">
+  					<if test="uname !=null">
+  							and uname like '%'||#{uname}||'%'
+  					</if>
+  					<if test="username !=null">
+  							and username like '%'||#{username}||'%'
+  					</if>
+  			</sql>
+  			
+  			<!-- 权限管理： 查出全部角色并分页展示  -->
+  			<select id="findUserlist" resultMap="userResultMap" parameterType="map" >
+  				select * from (
+  							select u.*,r.*, rownum as r from users u,role r 
+  										where u.roleid = r.r_id 
+  										<include refid="where_sql"/>
+  										order by u_id
+  								) 
+  				<![CDATA[
+  							where r>=#{start} and r<=#{end}
+  				]]>	
+  				
+  				<!-- 权限管理 ： 算出总记录数 -->			
+  			</select>
+  			<select id="findUserCount" parameterType="map" resultType="int">
+  				select count(*) from users u,role r where u.roleid=r.r_id
+  				<include refid="where_sql"/>
+  			</select>
+  			
+  			  <!-- 查询名字 -->
+			 <select id="findUserByid" parameterType="int" resultMap="userResultMap">
+			  		select u.*,r.rolename from users u,role r where u.roleid=r.r_id and u.u_id=#{value}
+			 </select>
+  
+  			<!-- 权限管理： 新增用户的方法 -->
+  			<insert id="addUser" parameterType="com.zb.entity.Users">
+  					insert into users values(seq_user.nextval,
+  																#{uname},
+  																#{upwd},
+  																#{username},
+  																#{role.rid})
+  			</insert>
+  			
+  			<!-- 权限管理： 更新角色 -->
+  			<update id="updateUser" parameterType="com.zb.entity.Users">
+  				update users set uname=#{uname},
+  												upwd = #{upwd},
+  												username = #{username},
+  												roleid =#{role.rid}
+  												where u_id=#{uid}
+  			</update>
+  			
+  			<!-- 权限管理 ： 删除角色 -->
+  			<delete id="delUser" parameterType="int">
+  				delete from users where u_id=#{value}
+  			</delete>
+  			
+  			<!-- 验证用户名是否存在 -->
+		  <select id="userNameChecked" parameterType="java.lang.String" resultType="int">
+		  	select count(*) from users where uname=#{value}
+  		  </select>
+</mapper>
